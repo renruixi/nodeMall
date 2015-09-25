@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>添加商品</title>
+    <meta charset="utf-8">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="
+    screen">
+    <script type="text/javascript" src="/javascripts/jquery-1.11.0.js"></script>
+    <style type="text/css">
+        #upload{
+            border:4px dashed #000;
+            margin-top: 30px;
+            text-align: center;
+            height: 200px;
+            width: 100%
+        }
+        .tips{
+            display:inline-block;
+            margin-top:80px; 
+        }
+    </style>
+   
+</head>
+<body>
+    <div style="margin:100px auto;width: 500px;" class="add_c">
+        <h1>添加商品</h1>
+        <a class="btn  btn-xs btn-success" href="home" style="margin-left: 400px;">返回商品页</a>
+        <form action="#"  role="form" method="post" >
+            <input style="margin-top: 30px;" id="cname" type="text" class="form-control"  name="cname" placeholder="商品名称" />
+            <input style="margin-top: 30px;" id="cprice"  class="form-control" name="cprice"  placeholder="商品价格" />
+            <div id="upload"><span class="tips">将商品图片拖到此处上传</span></div>
+            <input style="margin-top: 30px;" type="button" class="btn btn-success btn-block" onclick="addcommodity()" value="添 加" />
+        </form>
+
+    </div>
+
+    
+    
+     <script type="text/javascript">
+            $(function(){
+                $(document).on({
+                    dragenter:function(event){
+                        $("#upload").css("border-color","red");
+                         return false;
+                    },
+                    dragover:function(event){
+                        return false;
+                    },
+                    dragleave:function(event){
+                        $("#upload").css("border-color","black");
+                        return false;
+                    },
+                    drop:function(event){
+                        return false;
+                    }
+                });
+
+                $("#upload").on("drop",function(event){
+                        //JQ下获取event.dataTranfer需要在originalEvent下获取
+                        getFile($(this),event.originalEvent.dataTransfer.files);  
+                        return false;
+                });
+
+            });
+
+
+            function getFile(parent,files){
+                for(var i=0;i<files.length;i++){
+                    var file=files[i];
+                    if(!file.type.match(/image*/)){
+                        continue;
+                    }
+                    var img=document.createElement("img");
+                    img.id="upload_img";
+                    img.style.cssText="display:inline-block;width:100px;height:auto;float:left";
+                    parent.find("span").remove();
+                    if(parent.find("img").length != 0){
+                        alert("最多只能上传一张商品图片！");
+                        return;
+                    }
+                    parent.append(img);
+                    var fs=new FileReader();
+                    fs.readAsDataURL(file);
+                    fs.onload=(function(img){
+                        return function(e){
+                            img.src=e.target.result;
+                        };
+                    })(img);
+                    
+                }
+            }
+
+            function addcommodity(){
+                var name = $('#cname').val(), price = $('#cprice').val();
+                
+                if( !name.length|| !price.length){
+                    alert("商品名称或者商品价格不能为空！");
+                    return;
+                }
+                if($("#upload").children("img").length == 0){
+                    alert("请上传商品图片！");
+                    return;
+                }
+                var data = { 
+                    "name": name, 
+                    "price":price,
+                    "imgSrc": $("#upload_img").attr("src")
+                };
+                $.ajax({
+                    url:'/addcommodity',
+                    method:'POST',
+                    data:data,
+                    success:function(data,status){
+                        if(status == 'success'){
+                            alert('添加成功！');
+                            location.href="home";
+                        }
+                    },
+                    error:function(data,err){
+                        alert('添加失败！');
+                    }
+                });
+            }
+        </script>
+</body>
+</html>
+
+

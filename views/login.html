@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>用户登录</title>
+	<meta charset="utf-8">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+       <script type="text/javascript" src="/javascripts/jquery-1.11.0.js"></script>
+      <script src="/javascripts/bootstrap.min.js" type="text/javascript"></script>
+		<style type="text/css">
+			.panel-body{
+				padding: 30px 50px 0 50px;
+
+			}
+			.form-group{
+				margin-bottom: 35px;
+			}
+			.panel-title{
+				font-size: 24px;
+				font-weight: bold;
+			}
+		</style>
+
+  </head>
+<body>
+<div class="container web-body" style="margin-top:100px;width: 900px;">
+    <%- message %>
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+            
+                <ul class="nav nav-tabs" style="border-bottom:none">
+                  <li class="active" id="person-login"><a>用户登录</a></li>
+                  <li id="com-login"><a>企业登录</a></li>
+                </ul>
+                <div class="panel panel-default" id="person">
+                  <div class="panel-body">
+                        <form action="#" class="form-horizontal" role="form" method="post" >
+                            <div class="form-group">
+                                <input  type="text" class="form-control" name="username" placeholder="用户名" />
+                            </div>
+                            <div class="form-group">
+                                <input  type="password" class="form-control" name="password" autocomplete="off" placeholder="密码" />
+                            </div>
+                            <div class="form-group">
+                                <input type="button" class="btn btn-success btn-block"  value="登 陆" />
+                                <a href="register" class="btn btn-primary" style="float: right;margin-top: 20px;">注 册</a>
+                            </div>
+                        </form>
+                  </div>
+              </div>
+
+              <div class="panel panel-default" id="company" style="display:none">
+                  <div class="panel-body">
+                        <form action="#" class="form-horizontal" role="form" method="post" >
+                            <div class="form-group">
+                                <input   type="text" class="form-control" name="username" placeholder="用户名" />
+                            </div>
+                            <div class="form-group">
+                                <input  type="text" class="form-control" name="companyname" placeholder="公司名称" />
+                            </div>
+                            <div class="form-group">
+                                <input  type="password" class="form-control" name="password" autocomplete="off" placeholder="密码" />
+                            </div>
+                            <div class="form-group">
+                                <input type="button" class="btn btn-success btn-block"  value="登 陆" />
+                                <a href="register" class="btn btn-primary" style="float: right;margin-top: 20px;">注 册</a>
+                            </div>
+                        </form>
+                  </div>
+              </div>
+        </div>
+    </div>
+</div>
+ <script type="text/javascript">
+    $(function(){
+       $(".nav li").on("click",function(){
+            if(!$(this).hasClass("active")){
+                $(this).addClass("active").siblings('li').removeClass("active");
+                $(".panel").eq($(this).index()).css("display","block").siblings('.panel').css("display","none");
+                return false;
+            }
+            
+        });
+
+       $(".btn-success").click(function(){
+           login();
+       });
+
+
+       function login(){
+               var data;
+               var registerClass=$(".panel:not(':hidden')");
+               var id=registerClass.attr("id");
+               var username = registerClass.find("input[name='username']").val();
+               var password = registerClass.find("input[name='password']").val();
+
+               if(id == "person"){
+                  data={
+                    "uname":username,
+                    "upwd":password,
+                    "info":0
+                  };
+               }else{
+                  var companyname=registerClass.find("input[name='companyname']").val();
+                  data={
+                    "uname":username,
+                    "upwd":password,
+                    "companyname":companyname,
+                    "info":1
+                  };
+               }
+               $.ajax({
+                   url:'/login',
+                   type:'POST',
+                   data:data,
+                   success:function(data,status){
+                       if(status == 'success'){
+                           location.href='home';
+                       }
+                   },
+                   error:function(data,status){
+                         location.href='login';
+
+                   }
+               });
+
+           }  
+           
+    })
+    
+  </script>
+
+
+  
+
+</body>
+</html>
+
+

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>主页</title>
+	<meta charset="utf-8">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+       <script type="text/javascript" src="/javascripts/jquery-1.11.0.js"></script>
+      <script src="/javascripts/bootstrap.min.js" type="text/javascript"></script>
+		<style type="text/css">
+			.panel-title{
+				font-size: 24px;
+				font-weight: bold;
+			}
+            .spys{
+                list-style-type: none;
+            }
+            .spys li{
+                position: relative;
+                float: left;
+                margin: 10px 10px;
+                width: 180px;
+                height: 230px;
+            }
+            .spys li div strong{
+                color: red;
+            }
+            .smPic{
+                position:absolute;
+                top: 10%;
+                left:20%;
+            }
+
+		</style>
+  </head>
+<body>
+<div style="margin:50px auto;width: 900px;">
+    <div class="panel panel-default" >
+        <div class="panel-heading" style="height: 40px;">
+                    <div style="text-align: left">
+                        <span style="font-size:20px; font-weight:bold;">商品展示页</span>
+                        <div style="float: right;">
+                            <% if (info == 1){ %>
+                                <a class="btn  btn-xs btn-success" href="addcommodity" style="margin-right: 35px;">添加商品</a>
+                            <% } %>
+                            <a class="btn  btn-xs btn-success" id="shopCart" href="/cart" style="margin-right: 35px;">购物车</a>
+                            <a class="btn btn-xs btn-info" href="logout">退 出</a>
+                        </div>
+                    </div>
+                </div>
+        <div class="panel-body">
+            <ul class="spys" >
+                <%for(var i in Commoditys){ if(!Commoditys[i].cName)continue;%>
+                    <li class="spys">
+                        <div class="itemPic">
+                            <img  width="80" height="100" class="pic" src="<%=Commoditys[i].cImgSrc%>">
+                        </div>
+                        <div >
+                            <a class="title"><%=Commoditys[i].cName%></a>
+                            <strong style="color:red;" class="price">￥<%=Commoditys[i].cPrice%></strong>
+                            <a class="shopName"><%=Commoditys[i].uName%></a>
+                        </div>
+                        <div >
+                            <a data-id="<%=Commoditys[i]._id%>"  class="btn btn-success addCart" style="width: 120px;">加入购物车</a>
+                        </div>
+                    </li>
+                <%}%>
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $(".addCart").on("click",function(){
+            var _id=$(this).data("id");
+            var parent=$(this).parents("li").find(".itemPic");
+            var smPicTitle=$(this).parents("li").find(".title").html();
+            var smPicPrice=$(this).parents("li").find(".price").html();
+            var smPicShopName=$(this).parents("li").find(".shopName").html();
+            var smPicSrc=parent.find("img").eq(0).attr("src");
+            var shopCart=$("#shopCart");
+            var smPic=parent.children('img').eq(0).clone(true,true);
+            if(!parent.find(".smPic").length){
+                smPic.css({
+                    "position":"absolute",
+                    "left":0
+                });
+                 parent.append(smPic);
+            }
+
+            var distance=getdistance(smPic.get(0),shopCart.get(0)).distance,
+                distanceX=getdistance(smPic.get(0),shopCart.get(0)).x,
+                distanceY=getdistance(smPic.get(0),shopCart.get(0)).y;
+
+            var data={
+                cId:_id,
+                cName:smPicTitle,
+                cPrice:smPicPrice,
+                cShopName:smPicShopName,
+                cImgSrc:smPicSrc
+            };
+            smPic.animate({
+                    width:10,
+                    height:10,
+                    left: distanceX,
+                    top: distanceY
+                },500,function(){
+                    smPic.remove();
+                    $.ajax({
+                        url:'/cart',
+                        method:'POST',
+                        data:data,
+                        success:function(data,status){
+                            console.log(status);
+                            if(status == 'success'){
+                                alert("加入购物车成功！");
+                            }
+                        },
+                        error:function(data,err){
+                            console.log(err);
+                            alert('加入购物车失败！')
+                        }
+                    });
+            });
+
+
+        });
+
+
+        function getoffset(obj){
+            var left=0,
+                top=0;
+            while(obj){
+                left+=obj.offsetLeft;
+                top+=obj.offsetTop;
+                obj=obj.offsetParent;
+            };
+            return {
+                left:left,
+                top:top
+            };
+        }
+        function getdistance(obj1,obj2){
+        
+            var a = (getoffset(obj2).left-getoffset(obj1).left)+(obj2.offsetWidth/2-obj1.offsetWidth/2);
+            var b = (getoffset(obj2).top-getoffset(obj1).top)+(obj2.offsetHeight/2-obj1.offsetHeight/2);
+            
+            return {
+                distance:Math.sqrt(a*a + b*b),
+                x:a,
+                y:b
+            };  
+        }
+    })
+</script>
+</body>
+</html>
+
+

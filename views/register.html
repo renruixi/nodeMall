@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用户注册</title>
+    <meta charset="utf-8">
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+     <script type="text/javascript" src="/javascripts/jquery-1.11.0.js"></script>
+    <script src="/javascripts/bootstrap.min.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        .panel-body{
+            padding: 30px 50px 0 50px;
+        }
+        .form-group{
+            margin-bottom: 35px;
+        }
+        .panel-title{
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript">
+       
+        $(function(){
+            var correct=false;
+            var password,password_re;
+            checkInfo();
+            
+
+            $(".nav li").on("click",function(){
+                if(!$(this).hasClass("active")){
+                    $(this).addClass("active").siblings().removeClass("active");
+                    $(".panel").eq($(this).index()).css("display","block").siblings("div").css("display","none");
+                    checkInfo();
+                    return false;
+                }
+            });
+
+            $(".btn-success").bind("click",function(){
+                register();
+            });
+
+            function checkInfo(){
+                var registerClass=$(".panel:not(':hidden')");
+                registerClass.find(".confirmpwd").bind("blur",function(){
+                        password = registerClass.find("input[name='password']").val();
+                        password_re=registerClass.find("input[name='confirmpwd']").val();
+                        if(password != password_re){
+                            if($(".text-warning").length == 0){
+                                var warn=$("<p class='text-warning'>两次密码不正确</p>");
+                                registerClass.find("input[name='confirmpwd']").parent().append(warn);
+                            }
+                        }else{
+                            registerClass.find(".text-warning").remove();
+                            correct=true;
+                        }
+
+                });
+            }
+            function register(){
+                var registerClass=$(".panel:not(':hidden')");
+                var id=registerClass.attr("id");
+                var data;
+                if(correct){
+                      var name = registerClass.find('.username').val();
+                      if(id == "person"){
+                            data={
+                                "uname": name,
+                                "upwd":password,
+                                "upwd_re":password_re,
+                                "info":0
+                            };
+                      }else{
+                            var companyname=registerClass.find(".companyname").val();
+                            data={
+                                "uname": name,
+                                "upwd":password,
+                                "companyname":companyname,
+                                "upwd_re":password_re,
+                                "info":1
+                            };
+                      }
+                    $.ajax({
+                        url:'/register',
+                        type:'POST',
+                        data:data,
+                        success:function(data,status){
+                            if(status == 'success'){
+                                location.href='login';
+                            }
+                        },
+                        error:function(data,err){
+                            location.href='register';
+                        }
+                    });  
+                }else{
+                    alert("两次输入密码不匹配！！");
+                    return;
+                } 
+        }
+        });
+
+        
+        
+    </script>
+</head>
+<body>
+<div class="container web-body" style="margin-top:100px;width: 980px;">
+    <%- message %>
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+            <ul class="nav nav-tabs" style="border-bottom: none">
+                  <li class="active"><a>个人注册</a></li>
+                  <li><a>企业注册</a></li>
+            </ul>
+            <div class="panel panel-default" id="person">
+                  <div class="panel-body">
+                    <form action="#" class="form-horizontal" role="form" method="post" >
+                        <div class="form-group">
+                            <input  type="text" class="form-control username" name="username" placeholder="用户名" />
+                        </div>
+                        <div class="form-group">
+                            <input  type="password" class="form-control password" name="password"  placeholder="密码" />
+                        </div>
+                        <div class="form-group">
+                            <input  type="password" class="form-control confirmpwd" name="confirmpwd" placeholder="确认密码" />
+                        </div>
+                        <div class="form-group">
+                            <input type="button" class="btn btn-success btn-block"   value="注 册" />
+                            <a href="login" class="btn btn-primary" style="float: right;margin-top: 20px;">登 陆</a>
+                        </div>
+                    </form>
+                  </div>
+            </div>
+
+            <div class="panel panel-default" style="display:none" id="company">
+                 <div class="panel-body">
+                    <form action="#" class="form-horizontal" role="form" method="post" >
+                        <div class="form-group">
+                            <input type="text" class="form-control companyname" name="companyname" placeholder="公司名称" />
+                        </div>
+                        <div class="form-group">
+                            <input  type="text" class="form-control username" name="username" placeholder="用户名" />
+                        </div>
+                        <div class="form-group">
+                            <input  type="password" class="form-control password" name="password"  placeholder="密码" />
+                        </div>
+                        <div class="form-group">
+                            <input  type="password" class="form-control confirmpwd" name="confirmpwd" placeholder="确认密码" />
+                        </div>
+                        <div class="form-group">
+                            <input type="button" class="btn btn-success btn-block"   value="注 册" />
+                            <a href="login" class="btn btn-primary" style="float: right;margin-top: 20px;">登 陆</a>
+                        </div>
+                    </form>
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
